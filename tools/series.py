@@ -77,3 +77,53 @@ GROW = '<div style="flex-grow:1"></div>'
 def write(S):
     for i, s in enumerate(S, 1):
         open(f'slide-{i:02d}.html', 'w').write(HEAD + s + '</body></html>')
+
+# ---- added for modules: personality part 2, motivation, emotion, intelligence ----
+def badge(emoji, size=240, bg='#FBE3DB'):
+    return (f'<div style="width:{size}px;height:{size}px;border-radius:50%;background:{bg};display:flex;'
+            f'align-items:center;justify-content:center;font-size:{int(size*0.55)}px;flex-shrink:0">{emoji}</div>')
+
+def concept(n, T, lab, name, zh, emoji, defin, example, exk='EXAMPLE', size=100, extra=''):
+    """One-term slide: name + Chinese + emoji badge, definition card, example card."""
+    return slide(f'''<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px"><div style="flex:1"><div class="lab">{lab}</div>
+<h1 style="margin-top:22px;font-size:{size}px">{name}</h1><div style="margin-top:12px">{zs(zh,48)}</div></div>{badge(emoji,190)}</div>
+{GROW}{card(defin,k='WHAT IT IS',size=46)}<div style="margin-top:30px">{card(example,k=exk,bg='#FBE3DB',size=46)}</div>{extra}{GROW}''', n, T)
+
+def duo(a, b, size=38):
+    """Two side-by-side cards. a/b = (emoji, title, zh, body); a is indigo, b is coral-tint."""
+    def one(x, dark):
+        e, t, zh, body = x
+        bg, fg, sub = ('#3D3A8C', '#F7F3EC', '#C9C6EA') if dark else ('#FBE3DB', '#1E1E2A', '#8A7F74')
+        return (f'<div style="flex:1;padding:34px;border-radius:28px;background:{bg};color:{fg}">'
+                f'<div style="font-size:84px">{e}</div><div style="font-family:Fraunces,serif;font-weight:700;font-size:50px;margin-top:10px;line-height:1.05">{t}</div>'
+                f'<div style="font-size:30px;color:{sub};margin-top:6px">{zh}</div>'
+                f'<div style="margin-top:18px;font-size:{size}px;line-height:1.38">{z(body)}</div></div>')
+    return f'<div style="display:flex;gap:26px">{one(a,True)}{one(b,False)}</div>'
+
+def grid(items, size=32):
+    """2x2 (or 2xN) tiles: (emoji, title, zh, body)."""
+    cells = ''.join(
+        f'<div style="width:calc(50% - 13px);box-sizing:border-box;padding:28px;border-radius:26px;background:#FFFDF8;border:2px solid #E4DDD0">'
+        f'<div style="font-size:64px">{e}</div><div style="font-family:Fraunces,serif;font-weight:700;font-size:42px;margin-top:8px;line-height:1.08">{t}</div>'
+        f'<div style="font-size:26px;color:#8A7F74;margin-top:4px">{zh}</div><div style="margin-top:12px;font-size:{size}px;line-height:1.36">{z(b)}</div></div>'
+        for e, t, zh, b in items)
+    return f'<div style="display:flex;flex-wrap:wrap;gap:26px">{cells}</div>'
+
+def flow(steps, size=34):
+    """Horizontal arrow chain of short labels."""
+    arrow = '<div style="font-size:44px;color:#C24A2B;font-weight:800">→</div>'
+    boxes = arrow.join(f'<div style="flex:1;padding:22px 16px;border-radius:22px;background:{"#3D3A8C" if i==len(steps)-1 else "#FFFDF8"};'
+                       f'color:{"#F7F3EC" if i==len(steps)-1 else "#1E1E2A"};border:2px solid #E4DDD0;text-align:center;font-size:{size}px;font-weight:700;line-height:1.25">{s}</div>'
+                       for i, s in enumerate(steps))
+    return f'<div style="display:flex;align-items:center;gap:12px">{boxes}</div>'
+
+def vflow(steps, size=40):
+    """Vertical arrow chain: steps = list of (main, sub). Last step highlighted."""
+    arr = '<div style="font-size:44px;color:#C24A2B;font-weight:800;text-align:center;line-height:1">↓</div>'
+    out = []
+    for i, (m, sub) in enumerate(steps):
+        last = i == len(steps) - 1
+        bg, fg, sc = ('#3D3A8C', '#F7F3EC', '#C9C6EA') if last else ('#FFFDF8', '#1E1E2A', '#8A7F74')
+        s = f'<span style="font-size:{int(size*0.72)}px;font-weight:500;color:{sc};margin-left:14px">{sub}</span>' if sub else ''
+        out.append(f'<div style="padding:22px 30px;border-radius:22px;background:{bg};color:{fg};border:2px solid #E4DDD0;font-size:{size}px;font-weight:700">{m}{s}</div>')
+    return f'<div style="display:flex;flex-direction:column;gap:8px">{arr.join(out)}</div>'
